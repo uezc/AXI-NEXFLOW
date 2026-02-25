@@ -5,6 +5,7 @@ node_modules/
 dist/
 dist-electron/
 release/
+build/icon-512.png
 
 # 激活码生成器（不纳入仓库）
 activation-generator/

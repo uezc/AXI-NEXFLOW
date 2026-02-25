@@ -73,6 +73,7 @@
       "include": "build/installer.nsh"
     },
     "mac": {
+      "icon": "build/icon-512.png",
       "target": [
         {
           "target": "dmg",
