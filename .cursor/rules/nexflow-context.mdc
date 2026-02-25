@@ -1,0 +1,26 @@
+---
+description: NEXFLOW 项目背景与历史对话上下文，便于 AI 保持对软件设定的记忆
+alwaysApply: true
+---
+
+# NEXFLOW 项目上下文
+
+本规则确保在 NEXFLOW 项目中，AI 能延续「之前对话中已确立的软件设定与架构」作为上下文。
+
+## 必读文档（恢复项目记忆时优先参考）
+
+- **ARCHITECTURE_OVERVIEW.md**：数据流、节点数据模型、electron-store 存储、AI 接入建议、节点类型扩展。
+- **NEXFLOW设计蓝图.txt**：产品方向、直连架构、配置驱动、双平台集成、草稿与工程打包。
+- **NEXFLOW_PROJECT_MEMORY.md**：项目记忆摘要、历史对话导出位置、关键设定与约定。
+
+## 历史对话导出
+
+- 目录：**chat_history_export/**
+- 内容：Composer 会话元数据（`nexflow_chat_*.md`）、原始 composer 数据（`nexflow_composer_data_raw.json`）、部分对话正文（`nexflow_conversations_*.md`）。
+- 用户曾依赖的「画布里面的内容实时保存」等会话的详细设定，可从上述导出或项目文档中恢复；若用户要求「按之前的方案继续」，请结合 ARCHITECTURE_OVERVIEW 与 NEXFLOW_PROJECT_MEMORY 中的描述作答。
+
+## 技术约定（与既有实现保持一致）
+
+- 主进程负责所有 API 与持久化；渲染进程仅通过 IPC 调用，不做跨域 fetch。
+- 画布状态（节点/边）由 React Flow 管理，经 IPC 用 electron-store 按 `project-data-${projectId}` 持久化。
+- 节点类型与 AI 能力见 `src/main/ai/` 与 `src/renderer/components/Canvas/`；扩展时参考 ARCHITECTURE_OVERVIEW 中的 Schema 建议。

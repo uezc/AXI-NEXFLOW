@@ -1,0 +1,131 @@
+{
+  "name": "nexflow",
+  "version": "2.0.0",
+  "description": "NEXFLOW V2 - AI Workflow Platform",
+  "main": "dist-electron/main/index.js",
+  "type": "module",
+  "scripts": {
+    "copy-icon": "node scripts/copy-icon-to-public.js",
+    "dev": "npm run copy-icon && vite",
+    "build": "tsc && vite build",
+    "clean:electron": "if exist dist-electron rd /s /q dist-electron",
+    "build:main": "npm run clean:electron && tsc -p tsconfig.main.json",
+    "build:preload": "tsc -p tsconfig.preload.json && node scripts/create-preload-package.js",
+    "build:renderer": "npm run copy-icon && vite build",
+    "build:all": "npm run build:main && npm run build:preload && npm run build:renderer",
+    "preview": "vite preview",
+    "electron:dev": "chcp 65001 >nul 2>&1 && npm run build:main && npm run build:preload && concurrently \"npm run dev\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .\"",
+    "convert-icon": "node scripts/convert-icon-to-ico.js",
+    "electron:build": "npm run build:all && npm run convert-icon && node scripts/sync-llm-personas-to-default.js && electron-builder"
+  },
+  "keywords": [
+    "electron",
+    "react",
+    "typescript",
+    "vite"
+  ],
+  "author": "",
+  "license": "MIT",
+  "build": {
+    "appId": "com.nexflow.app",
+    "productName": "NEXFLOW",
+    "icon": "build/icon.ico",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist-electron/**/*",
+      "dist/**/*",
+      "build/icon.ico",
+      "build/icon.png"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/splash-videos",
+        "to": "splash-videos"
+      },
+      {
+        "from": "resources/default-llm-personas.json",
+        "to": "default-llm-personas.json"
+      }
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "NEXFLOW Setup ${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": true,
+      "shortcutName": "NEXFLOW",
+      "installerLanguages": [
+        "zh_CN",
+        "en_US"
+      ],
+      "include": "build/installer.nsh"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "@types/ali-oss": "^6.23.2",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@types/react-router-dom": "^5.3.3",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.16",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "png-to-ico": "^3.0.1",
+    "postcss": "^8.4.32",
+    "sharp": "^0.33.5",
+    "tailwindcss": "^3.3.6",
+    "typescript": "^5.9.3",
+    "vite": "^5.0.8",
+    "wait-on": "^7.2.0"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "@types/express": "^5.0.6",
+    "@types/form-data": "^2.5.2",
+    "adm-zip": "^0.5.16",
+    "ali-oss": "^6.23.0",
+    "axios": "^1.6.2",
+    "clsx": "^2.0.0",
+    "dotenv": "^17.2.3",
+    "electron-store": "^8.1.0",
+    "express": "^5.2.1",
+    "form-data": "^4.0.5",
+    "framer-motion": "^12.30.0",
+    "html2canvas": "^1.4.1",
+    "lucide-react": "^0.294.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^7.13.0",
+    "reactflow": "^11.10.1",
+    "tailwind-merge": "^2.1.0",
+    "three": "^0.183.1"
+  }
+}

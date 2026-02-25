@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEXFLOW 激活码生成器</title>
+  <link rel="icon" type="image/png" href="../build/icon.png" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #000;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 2rem;
+      letter-spacing: 0.05em;
+    }
+    .panel {
+      width: 100%;
+      max-width: 360px;
+    }
+    label {
+      display: block;
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 0.5rem;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    input[type="number"]:focus {
+      outline: none;
+      border-color: rgba(255,255,255,0.5);
+    }
+    select.input-like {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1rem;
+      margin-bottom: 1.25rem;
+      cursor: pointer;
+    }
+    select.input-like:focus {
+      outline: none;
+      border-color: rgba(255,255,255,0.5);
+    }
+    select.input-like option {
+      background: #1a1a1a;
+      color: #fff;
+    }
+    input[readonly] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.875rem;
+      font-family: ui-monospace, monospace;
+      margin-bottom: 0.5rem;
+    }
+    .copy-hint {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 1.25rem;
+    }
+    .copy-hint a { color: rgba(255,255,255,0.7); cursor: pointer; }
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      background: #fff;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    .btn:hover { background: rgba(255,255,255,0.9); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .toast {
+      text-align: center;
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.8);
+      margin-top: 1rem;
+      min-height: 1.5rem;
+    }
+    textarea.batch-output {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.8rem;
+      font-family: ui-monospace, monospace;
+      resize: vertical;
+      margin-bottom: 0.5rem;
+    }
+    textarea.batch-output::placeholder { color: rgba(255,255,255,0.4); }
+  </style>
+</head>
+<body>
+  <h1>NEXFLOW 激活</h1>
+  <div class="panel">
+    <label for="days">授权天数</label>
+    <input type="number" id="days" min="1" max="3650" value="30" />
+
+    <label for="ttl">核销有效期</label>
+    <select id="ttl" class="input-like">
+      <option value="1">1 小时失效</option>
+      <option value="48" selected>48 小时失效</option>
+      <option value="0">永久有效（不限制核销时间）</option>
+    </select>
+
+    <label for="batchCount">生成数量</label>
+    <input type="number" id="batchCount" min="1" max="100" value="1" placeholder="1" style="margin-bottom:1.25rem;" />
+
+    <label for="code">生成的激活码</label>
+    <input type="text" id="code" readonly placeholder="点击下方按钮生成" />
+    <textarea id="batchOutput" class="batch-output" readonly placeholder="点击下方按钮生成" rows="4" style="display:none;"></textarea>
+    <p class="copy-hint" id="copyHint" style="display:none;">已复制到剪贴板，可直接粘贴到 NEXFLOW 主程序激活页使用。</p>
+
+    <button type="button" class="btn" id="btnGenerate">生成并复制</button>
+    <p class="toast" id="toast"></p>
+  </div>
+
+  <script>
+    const daysInput = document.getElementById('days');
+    const ttlSelect = document.getElementById('ttl');
+    const batchCountInput = document.getElementById('batchCount');
+    const codeInput = document.getElementById('code');
+    const batchOutput = document.getElementById('batchOutput');
+    const copyHint = document.getElementById('copyHint');
+    const btn = document.getElementById('btnGenerate');
+    const toast = document.getElementById('toast');
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      if (msg) setTimeout(() => { toast.textContent = ''; }, 2500);
+    }
+
+    function updateOutputDisplay(count) {
+      const single = count <= 1;
+      codeInput.style.display = single ? 'block' : 'none';
+      batchOutput.style.display = single ? 'none' : 'block';
+    }
+
+    batchCountInput.addEventListener('input', () => {
+      const n = Math.max(1, Math.min(100, parseInt(batchCountInput.value, 10) || 1));
+      batchCountInput.value = n;
+      updateOutputDisplay(n);
+    });
+    updateOutputDisplay(1);
+
+    btn.addEventListener('click', async () => {
+      const count = Math.max(1, Math.min(100, parseInt(batchCountInput.value, 10) || 1));
+      if (count > 1 && !window.api?.generateActivationCodesBatch) {
+        showToast('当前环境不支持批量生成');
+        return;
+      }
+      if (count === 1 && !window.api?.generateActivationCode) {
+        showToast('当前环境不支持');
+        return;
+      }
+      const days = Math.max(1, Math.min(3650, parseInt(daysInput.value, 10) || 30));
+      const ttlHours = parseInt(ttlSelect.value, 10);
+      btn.disabled = true;
+      btn.textContent = '生成中...';
+      toast.textContent = '';
+      try {
+        if (count > 1) {
+          const { codes } = await window.api.generateActivationCodesBatch(days, ttlHours, count);
+          const text = codes.join('\n');
+          batchOutput.value = text;
+          updateOutputDisplay(count);
+          copyHint.style.display = 'block';
+          showToast('已生成 ' + count + ' 个激活码并复制到剪贴板');
+        } else {
+          const { code } = await window.api.generateActivationCode(days, ttlHours);
+          codeInput.value = code;
+          updateOutputDisplay(1);
+          copyHint.style.display = 'block';
+          showToast('已复制到剪贴板');
+        }
+      } catch (e) {
+        showToast('生成失败，请重试');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '生成并复制';
+      }
+    });
+  </script>
+</body>
+</html>
