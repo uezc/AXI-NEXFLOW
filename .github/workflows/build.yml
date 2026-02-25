@@ -45,10 +45,6 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: npx electron-builder --mac --publish never
 
-      - name: 开启远程调试
-        if: always()
-        uses: mxschmitt/action-tmate@v3
-
       - name: List release output
         run: ls -la release/
 
