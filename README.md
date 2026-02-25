@@ -1,4 +1,4 @@
-# NEXFLOW V2
+# NEXFLOW  V2
 
 AI Workflow Platform built with Electron + Vite + React + TypeScript
 
