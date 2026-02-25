@@ -1,4 +1,4 @@
-name: Build macOS (dmg)
+name: Build macOS (zip)
 
 on:
   push:
@@ -40,7 +40,7 @@ jobs:
       - name: Sync LLM personas
         run: node scripts/sync-llm-personas-to-default.js
 
-      - name: Build Electron (macOS dmg)
+      - name: Build Electron (macOS zip)
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: npx electron-builder --mac
@@ -48,8 +48,8 @@ jobs:
       - name: List release output
         run: ls -la release/
 
-      - name: Upload dmg artifact
+      - name: Upload zip artifact
         uses: actions/upload-artifact@v4
         with:
           name: NEXFLOW-macOS
-          path: release/*.dmg
+          path: release/*.zip

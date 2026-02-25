@@ -76,16 +76,12 @@
       "icon": "build/icon-512.png",
       "target": [
         {
-          "target": "dmg",
+          "target": "zip",
           "arch": ["x64", "arm64"]
         }
       ],
       "category": "public.app-category.productivity",
-      "artifactName": "NEXFLOW-${version}.${ext}"
-    },
-    "dmg": {
-      "title": "NEXFLOW-${version}",
-      "format": "UDZO"
+      "artifactName": "NEXFLOW-${version}-${arch}.${ext}"
     },
     "linux": {
       "target": [
