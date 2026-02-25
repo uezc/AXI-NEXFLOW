@@ -6,9 +6,8 @@ dist/
 dist-electron/
 release/
 
-# activation-generator 子项目
-activation-generator/node_modules/
-activation-generator/dist/
+# 激活码生成器（不纳入仓库）
+activation-generator/
 
 # 文档中的安装包
 docs/*.exe
