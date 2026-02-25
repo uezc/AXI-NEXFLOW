@@ -83,6 +83,10 @@
       "category": "public.app-category.productivity",
       "artifactName": "NEXFLOW-${version}.${ext}"
     },
+    "dmg": {
+      "title": "NEXFLOW-${version}",
+      "format": "UDZO"
+    },
     "linux": {
       "target": [
         "AppImage"
